@@ -7,6 +7,13 @@ import { FiCamera, FiX, FiUpload, FiAlertCircle } from "react-icons/fi";
 import Webcam from "react-webcam";
 import { useWhisky } from "../../../context/WhiskyContext";
 
+// Define interfaces to fix type errors
+interface MediaDeviceWithVendor {
+  userAgent?: string;
+  vendor?: string;
+  opera?: unknown;
+}
+
 export default function CameraCapture() {
   const [cameraActive, setCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -20,8 +27,16 @@ export default function CameraCapture() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       // Detect mobile devices
-      const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
-      setIsMobile(/android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase()));
+      const userAgentString = navigator.userAgent || '';
+      const vendorString = navigator.vendor || '';
+      const operaString = ((window as unknown) as MediaDeviceWithVendor).opera || '';
+      
+      // Check if it's a mobile device
+      const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+        (userAgentString + vendorString + String(operaString)).toLowerCase()
+      );
+      
+      setIsMobile(isMobileDevice);
       
       // Check camera support
       const isMediaDevicesSupported = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
@@ -251,9 +266,12 @@ export default function CameraCapture() {
               height: { ideal: 720 }
             }}
             className="w-full h-[300px] object-cover"
-            onUserMediaError={(err) => {
-              console.error('Webcam error:', err);
-              setCameraError(`Camera access denied: ${err.name}. Please check your browser permissions or try a different device.`);
+            onUserMediaError={(error: string | DOMException) => {
+              console.error('Webcam error:', error);
+              const errorMessage = typeof error === 'string'
+                ? error
+                : error.name || 'Unknown camera error';
+              setCameraError(`Camera access denied: ${errorMessage}. Please check your browser permissions or try a different device.`);
               setCameraActive(false);
             }}
           />

@@ -7,13 +7,11 @@ import { useWhisky } from "../../../context/WhiskyContext";
 
 export default function ImageUploader() {
   const { 
-    file, 
     setFile, 
     preview, 
     setPreview, 
     setResults, 
-    error,  
-    setError  
+    setError 
   } = useWhisky();
 
   // Dropzone configuration
