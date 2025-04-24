@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Whisky Goggles Custom Theme */
+:root {
+  --whisky-amber-50: #fffbeb;
+  --whisky-amber-100: #fef3c7;
+  --whisky-amber-200: #fde68a;
+  --whisky-amber-300: #fcd34d;
+  --whisky-amber-400: #fbbf24;
+  --whisky-amber-500: #f59e0b;
+  --whisky-amber-600: #d97706;
+  --whisky-amber-700: #b45309;
+  --whisky-amber-800: #92400e;
+  --whisky-amber-900: #78350f;
+}
+
+body {
+  background-color: #fffaf0;
+  color: #4b5563;
+}
+
+.whisky-card {
+  border: 1px solid #fde68a;
+  transition: all 0.3s ease;
+}
+
+.whisky-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(251, 191, 36, 0.2);
+  transform: translateY(-4px);
+}
+
+.confidence-high {
+  background-color: #10b981;
+}
+
+.confidence-medium {
+  background-color: #f59e0b;
+}
+
+.confidence-low {
+  background-color: #ef4444;
+}
