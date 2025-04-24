@@ -6,12 +6,33 @@ import axios from "axios";
 // Configure API endpoint
 const API_ENDPOINT = "/api";  // Using local proxy to avoid CORS issues
 
+// Define interface for the whisky data
+interface WhiskyMatch {
+  name: string;
+  confidence: number;
+  vintage?: string;
+  price?: number;
+  description?: string;
+  image_url?: string;
+}
+
+interface WhiskyResultItem {
+  label: string;
+  matches: WhiskyMatch[];
+}
+
+interface WhiskyResultData {
+  bottle_detected: boolean;
+  results: WhiskyResultItem[];
+  message?: string;
+}
+
 // Define our context types
 interface WhiskyContextType {
   // State
   file: File | null;
   preview: string | null;
-  results: any | null;
+  results: WhiskyResultData | null;
   loading: boolean;
   error: string | null;
   priceInfo: Record<string, number>;
@@ -22,7 +43,7 @@ interface WhiskyContextType {
   // Actions
   setFile: (file: File | null) => void;
   setPreview: (preview: string | null) => void;
-  setResults: (results: any | null) => void;
+  setResults: (results: WhiskyResultData | null) => void;
   setError: (error: string | null) => void;
   analyzeImage: (imageData: string | File) => Promise<void>;
   handlePriceUpdate: (whiskyName: string, price: number) => void;
@@ -39,7 +60,7 @@ export function WhiskyProvider({ children }: { children: ReactNode }) {
   // State
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [results, setResults] = useState<any | null>(null);
+  const [results, setResults] = useState<WhiskyResultData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [priceInfo, setPriceInfo] = useState<Record<string, number>>({});
@@ -157,17 +178,21 @@ export function WhiskyProvider({ children }: { children: ReactNode }) {
       
       console.log("API Response:", response.data);
       if (response.data.success) {
-        setResults(response.data);
+        setResults(response.data as WhiskyResultData);
       } else {
         setError(response.data.error || "Failed to analyze image. Please try again.");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error analyzing image:", err);
-      if (err.response && err.response.data) {
-        console.error("Server error details:", err.response.data);
-        setError(`Server error: ${err.response.data.error || "Unknown error"}`);
-      } else {
+      if (err && typeof err === 'object' && 'response' in err && 
+          err.response && typeof err.response === 'object' && 'data' in err.response) {
+        const errorResponse = err.response as { data?: { error?: string } };
+        console.error("Server error details:", errorResponse.data);
+        setError(`Server error: ${errorResponse.data?.error || "Unknown error"}`);
+      } else if (err instanceof Error) {
         setError(`Error: ${err.message || "Something went wrong"}`);
+      } else {
+        setError("An unknown error occurred");
       }
     } finally {
       setLoading(false);

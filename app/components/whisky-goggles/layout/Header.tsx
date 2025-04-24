@@ -55,7 +55,7 @@ export default function Header() {
           </button>
           <h3 className="font-bold mb-2">Whisky Goggles</h3>
           <p>This AI-powered tool identifies whisky bottles from the BAXUS dataset of 470+ bottles. Simply upload an image or take a photo of a bottle to get instant matches.</p>
-          <p className="mt-2">Built for the BAXATHON competition using OpenAI's GPT-4o vision model.</p>
+          <p className="mt-2">Built for the BAXATHON competition using OpenAI&apos;s GPT-4o vision model.</p>
           <button 
             onClick={() => setShowTechDetails(!showTechDetails)}
             className="mt-2 text-amber-200 hover:text-white"

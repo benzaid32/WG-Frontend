@@ -43,7 +43,7 @@ export default function CameraCapture() {
       setIsCameraSupported(isMediaDevicesSupported);
       
       if (!isMediaDevicesSupported) {
-        setCameraError("Your browser doesn't support camera access. Please use the upload option instead.");
+        setCameraError("Your browser doesn&apos;t support camera access. Please use the upload option instead.");
       }
     }
   }, []);
@@ -136,7 +136,7 @@ export default function CameraCapture() {
             <div>
               <p className="text-amber-800 font-medium">Camera not available</p>
               <p className="text-amber-700 text-sm mt-1">
-                Your browser doesn't support camera access or permissions were denied.
+                Your browser doesn&apos;t support camera access or permissions were denied.
               </p>
             </div>
           </div>

@@ -1,51 +1,64 @@
 "use client";
 
-import Image from "next/image";
 import { FiCheckCircle, FiDollarSign } from "react-icons/fi";
 import { useWhisky } from "../../../context/WhiskyContext";
 
+// Define proper types for the whisky results
+interface WhiskyMatch {
+  name: string;
+  confidence: number;
+  vintage?: string;
+  price?: number;
+  description?: string;
+  image_url?: string;
+}
+
+interface WhiskyResultItem {
+  label: string;
+  matches: WhiskyMatch[];
+}
+
 export default function WhiskyResults() {
   const { 
-    preview, 
     results, 
     priceInfo, 
     handlePriceUpdate, 
     savePrice, 
-    resetRecognition 
+    resetRecognition
   } = useWhisky();
 
   if (!results || !results.results || results.results.length === 0) {
-    return null;
+    return (
+      <div className="text-center p-6">
+        <div className="animate-pulse flex flex-col items-center justify-center space-y-4">
+          <div className="rounded-full bg-gray-200 dark:bg-gray-700 h-12 w-12 flex items-center justify-center">
+            <FiCheckCircle className="text-gray-400 dark:text-gray-500" size={24} />
+          </div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="mt-6">
-      <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-lg p-4 mb-6">
-        <h3 className="text-amber-800 dark:text-amber-300 font-medium flex items-center">
-          <FiCheckCircle className="mr-2" />
-          Bottle Identified!
-        </h3>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="aspect-w-3 aspect-h-4 rounded-lg overflow-hidden">
-          {preview && (
-            <Image
-              src={preview}
-              alt="Analyzed bottle"
-              width={400}
-              height={500}
-              className="object-contain bg-gray-100 dark:bg-gray-900 rounded-lg"
-              priority
-            />
-          )}
+    <div className="space-y-6">
+      {results.bottle_detected ? (
+        <div className="bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-200 p-4 rounded-lg flex items-center">
+          <FiCheckCircle className="mr-2 flex-shrink-0" />
+          <p>Whisky bottle detected! Here are the matches.</p>
         </div>
+      ) : (
+        <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-200 p-4 rounded-lg">
+          <p>No bottle clearly detected. Results may be less accurate.</p>
+        </div>
+      )}
 
         <div>
           <h3 className="text-lg font-medium mb-2">Top Matches:</h3>
           <div className="space-y-4">
-            {results.results.map((result: any, idx: number) =>
-              result.matches.map((match: any, matchIdx: number) => (
+            {results.results.map((result: WhiskyResultItem, idx: number) =>
+              result.matches.map((match: WhiskyMatch, matchIdx: number) => (
                 <div
                   key={`${idx}-${matchIdx}`}
                   className="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-4 shadow-sm"
@@ -54,16 +67,25 @@ export default function WhiskyResults() {
                     <h4 className="font-medium text-gray-900 dark:text-white">
                       {match.name || "Unknown"}
                     </h4>
-                    <div className="bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-300 text-sm font-medium px-2 py-1 rounded">
-                      {match.confidence ? `${match.confidence.toFixed(1)}%` : "N/A"}
-                    </div>
+                    <span className="bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 text-xs px-2 py-1 rounded-full">
+                      {match.confidence > 1 ? match.confidence.toFixed(0) : Math.round(match.confidence * 100)}% Match
+                    </span>
                   </div>
-
-                  {/* Price Recording */}
-                  <div className="mt-4 flex items-center">
-                    <div className="mr-2 text-gray-500 dark:text-gray-400">
-                      <FiDollarSign />
-                    </div>
+                  
+                  {match.vintage && (
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      Vintage: {match.vintage}
+                    </p>
+                  )}
+                  
+                  {match.description && (
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
+                      {match.description}
+                    </p>
+                  )}
+                  
+                  <div className="flex items-center mt-4">
+                    <FiDollarSign className="text-gray-500 dark:text-gray-400 mr-1" />
                     <input
                       type="number"
                       min="0"
@@ -90,7 +112,6 @@ export default function WhiskyResults() {
             )}
           </div>
         </div>
-      </div>
 
       <div className="mt-6 flex justify-center">
         <button
